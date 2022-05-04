@@ -10,15 +10,29 @@ $ npm install
 $ npm run build
 ```
 
-
 ## copy .env
 ```shell
 cp env/env.sample env/.env
 ```
 
 ## deploy
+The following command will print the address of the deployed smart contract.  
 ```shell
 $ npx hardhat run scripts/deploy.ts --network devnet
+deployed to: 0x5abf6f48F5A31de73a1d9468DA316FEd17C58BA5
+```
+
+You should record the address of the smart contract in `.env`
+Below is the file `.env`.
+```shell
+MAINNET_URL=https://mainnet-michael.bosagora.com
+DEVNET_URL=https://devnet-michael.bosagora.com
+TESTNET_URL=https://testnet-michael.bosagora.com
+
+ADMIN_KEY=0xd7912c64125d466be55d2ac220834571a39ff9abeb9ad6dfb6afe9a3a433ba7d
+USER_KEY=0x968c5160a45d3891f424c18f06f83d56f4f2e1461d177fd84a0bfc5f993176a1
+
+DEPOSIT_CONTRACT_ADDRESS=0x5abf6f48F5A31de73a1d9468DA316FEd17C58BA5
 ```
 
 ## staking
@@ -31,7 +45,6 @@ amount: 32000000000
 signature: 9717466c37a143a9e4b763a7790f368f6b83a135818a90872d340cf697eec8ef9b828e2e1c0e911b39dfa46fd12cc5eb11e3f10b62d02d20614371be62d0fce359520f9fe328e5a3d0793acbc6d76613868e1f5463c74d52dfa7e86e1f8aff3c
 deposit_data_root: bc6bf2e3aefcfe5b07d5206a5979f53189e965d61f3f99a320501b2d4e9889e0
 ```
-
 
 ## check balance of deposit contract
 ```shell
