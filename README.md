@@ -12,14 +12,14 @@ $ npm run build
 
 ## copy .env
 ```shell
-cp env/env.sample env/.env
+cp env/.env.sample env/.env
 ```
 
 ## deploy
 The following command will print the address of the deployed smart contract.  
 ```shell
 $ npx hardhat run scripts/deploy.ts --network devnet
-deployed to: 0x5abf6f48F5A31de73a1d9468DA316FEd17C58BA5
+deployed to: 0xeEdC2Ac65dF232AB6d229EBD4E3F564e194ffe7D
 ```
 
 You should record the address of the smart contract in `.env`
@@ -32,7 +32,7 @@ TESTNET_URL=https://testnet-michael.bosagora.com
 ADMIN_KEY=0xd7912c64125d466be55d2ac220834571a39ff9abeb9ad6dfb6afe9a3a433ba7d
 USER_KEY=0x968c5160a45d3891f424c18f06f83d56f4f2e1461d177fd84a0bfc5f993176a1
 
-DEPOSIT_CONTRACT_ADDRESS=0x5abf6f48F5A31de73a1d9468DA316FEd17C58BA5
+DEPOSIT_CONTRACT_ADDRESS=0xeEdC2Ac65dF232AB6d229EBD4E3F564e194ffe7D
 ```
 
 ## staking
