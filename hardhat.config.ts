@@ -76,15 +76,16 @@ const config: HardhatUserConfig = {
             url: process.env.DEVNET_URL || "",
             chainId: 2020,
             accounts: [process.env.ADMIN_KEY || "", process.env.USER_KEY || ""],
-            gas: 2100000,
-            gasPrice: 8000000000,
+        },
+        michael: {
+            url: process.env.MICHAEL_URL || "",
+            chainId: 2020,
+            accounts: [process.env.ADMIN_KEY || "", process.env.USER_KEY || ""],
         },
         testnet: {
             url: process.env.TESTNET_URL || "",
             chainId: 2019,
             accounts: [process.env.ADMIN_KEY || "", process.env.USER_KEY || ""],
-            gas: 2100000,
-            gasPrice: 8000000000,
         },
     },
     gasReporter: {
