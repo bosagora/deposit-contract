@@ -3,21 +3,28 @@
 //
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
+
 import { DepositContract } from "../typechain";
+import { GasPriceManager } from "../utils/GasPriceManager";
 
 import { Wallet } from "ethers";
 import { ethers } from "hardhat";
 
+import { NonceManager } from "@ethersproject/experimental";
+
 async function main() {
     const ContractFactory = await ethers.getContractFactory("DepositContract");
 
-    const provider_ethnet = ethers.provider;
+    const provider = ethers.provider;
     const admin = new Wallet(process.env.ADMIN_KEY || "");
-    const adminSigner = provider_ethnet.getSigner(admin.address);
+    const adminSigner = new NonceManager(new GasPriceManager(provider.getSigner(admin.address)));
     const contract = (await ContractFactory.connect(adminSigner).deploy()) as DepositContract;
     await contract.deployed();
 
-    console.log("deployed to:", contract.address);
+    const receipt = await contract.deployTransaction.wait();
+
+    console.log("deployed to (address) :", contract.address);
+    console.log("deployed at (blockNumber) :", receipt.blockNumber);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

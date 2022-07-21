@@ -9,6 +9,7 @@ import { utils, Wallet } from "ethers";
 
 import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
+import "@nomiclabs/hardhat-web3";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
@@ -25,7 +26,24 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
     }
 });
 
+// If not defined, randomly generated.
+function createPrivateKey() {
+    const reg_bytes64: RegExp = /^(0x)[0-9a-f]{64}$/i;
+    if (
+        process.env.ADMIN_KEY === undefined ||
+        process.env.ADMIN_KEY.trim() === "" ||
+        !reg_bytes64.test(process.env.ADMIN_KEY)
+    ) {
+        process.env.ADMIN_KEY = Wallet.createRandom().privateKey;
+    }
+}
+createPrivateKey();
+
 function getAccounts() {
+    return [process.env.ADMIN_KEY || ""];
+}
+
+function getTestAccounts() {
     const accounts: HardhatNetworkAccountUserConfig[] = [];
     const defaultBalance = utils.parseEther("2000000").toString();
 
@@ -36,10 +54,7 @@ function getAccounts() {
             balance: defaultBalance,
         });
     }
-    accounts[0].privateKey =
-        process.env.ADMIN_KEY || "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
-    accounts[1].privateKey =
-        process.env.USER_KEY || "0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a";
+    accounts[0].privateKey = process.env.ADMIN_KEY || "";
 
     return accounts;
 }
@@ -63,29 +78,29 @@ const config: HardhatUserConfig = {
     },
     networks: {
         hardhat: {
-            accounts: getAccounts(),
-        },
-        mainnet: {
-            url: process.env.MAINNET_URL || "",
-            chainId: 2022,
-            accounts: [process.env.ADMIN_KEY || "", process.env.USER_KEY || ""],
+            accounts: getTestAccounts(),
             gas: 2100000,
             gasPrice: 8000000000,
         },
-        devnet: {
-            url: process.env.DEVNET_URL || "",
-            chainId: 2020,
-            accounts: [process.env.ADMIN_KEY || "", process.env.USER_KEY || ""],
-        },
-        michael: {
-            url: process.env.MICHAEL_URL || "",
-            chainId: 2020,
-            accounts: [process.env.ADMIN_KEY || "", process.env.USER_KEY || ""],
+        mainnet: {
+            url: process.env.MAIN_NET_URL || "",
+            chainId: 2151,
+            accounts: getAccounts(),
         },
         testnet: {
-            url: process.env.TESTNET_URL || "",
+            url: process.env.TEST_NET_URL || "",
             chainId: 2019,
-            accounts: [process.env.ADMIN_KEY || "", process.env.USER_KEY || ""],
+            accounts: getAccounts(),
+        },
+        devnet: {
+            url: process.env.DEV_NET_URL || "",
+            chainId: 2020,
+            accounts: getAccounts(),
+        },
+        votera: {
+            url: process.env.VOTERA_URL || "",
+            chainId: 34560,
+            accounts: getAccounts(),
         },
     },
     gasReporter: {
