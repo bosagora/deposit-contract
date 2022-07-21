@@ -9,12 +9,10 @@ import {ethers} from "hardhat";
 
 async function main() {
     const admin = new Wallet(process.env.ADMIN_KEY || "");
-    const user = new Wallet(process.env.USER_KEY || "");
 
     const provider = ethers.provider;
 
     console.log("admin   : " + (await provider.getBalance(admin.address)).toString());
-    console.log("user    : " + (await provider.getBalance(user.address)).toString());
     console.log(
         "deposit  : " + (await provider.getBalance(process.env.DEPOSIT_CONTRACT_ADDRESS || "")).toString()
     );
