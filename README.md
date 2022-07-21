@@ -25,12 +25,11 @@ deployed to: 0xeEdC2Ac65dF232AB6d229EBD4E3F564e194ffe7D
 You should record the address of the smart contract in `.env`
 Below is the file `.env`.
 ```shell
-MAINNET_URL=https://mainnet-michael.bosagora.com
-DEVNET_URL=https://devnet-michael.bosagora.com
-TESTNET_URL=https://testnet-michael.bosagora.com
+MAIN_NET_URL=https://mainnet.bosagora.org
+TEST_NET_URL=https://testnet.bosagora.org
+DEV_NET_URL=https://devnet.bosagora.info
 
 ADMIN_KEY=0xd7912c64125d466be55d2ac220834571a39ff9abeb9ad6dfb6afe9a3a433ba7d
-USER_KEY=0x968c5160a45d3891f424c18f06f83d56f4f2e1461d177fd84a0bfc5f993176a1
 
 DEPOSIT_CONTRACT_ADDRESS=0xeEdC2Ac65dF232AB6d229EBD4E3F564e194ffe7D
 ```
@@ -51,6 +50,5 @@ deposit_data_root: bc6bf2e3aefcfe5b07d5206a5979f53189e965d61f3f99a320501b2d4e988
 $ npx hardhat run scripts/balance.ts --network devnet
 No need to generate any newer typings.
 admin   : 99999999983280688000000000
-user    : 99999967999797632000000000
 deposit  : 32000000000000000000
 ```
