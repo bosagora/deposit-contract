@@ -5,21 +5,27 @@
 // Runtime Environment's members available in the global scope.
 
 import { DepositContract } from "../typechain";
+import { BOACoin } from "../utils/Amount";
 import { GasPriceManager } from "../utils/GasPriceManager";
 
-import { BigNumber, utils, Wallet } from "ethers";
+import { utils, Wallet } from "ethers";
 import { ethers } from "hardhat";
 
 import { NonceManager } from "@ethersproject/experimental";
-import { keccak256 } from "@ethersproject/keccak256";
 
 import fs from "fs";
 
-const pricePerValidator = BigNumber.from(32);
-const TX_VALUE = pricePerValidator.mul(BigNumber.from(10).pow(18));
+const pricePerValidator = 40000;
+const TX_VALUE = BOACoin.make(pricePerValidator).value;
 
 function prefix0X(key: string): string {
     return `0x${key}`;
+}
+
+function delay(interval: number): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+        setTimeout(resolve, interval);
+    });
 }
 
 async function main() {
@@ -30,26 +36,22 @@ async function main() {
     const admin = new Wallet(process.env.ADMIN_KEY || "");
     const admin_signer = new NonceManager(new GasPriceManager(provider.getSigner(admin.address)));
 
-    const deposit_data = JSON.parse(fs.readFileSync("./validator_keys/deposit_data-1652070719.json", "utf-8"));
+    const deposit_data = JSON.parse(fs.readFileSync("./validator_keysA/deposit_data-1652937039.json", "utf-8"));
 
     for (const elem of deposit_data) {
-        const new_bytes = utils.arrayify("0x" + elem.pubkey);
-        const new_key = keccak256(new_bytes);
-        const address = utils.getAddress(new_key.substring(26));
-        console.log(`public key: ${elem.pubkey}; address: ${address}`);
+        console.log(`public key: ${elem.pubkey}`);
 
-        const res = await contract.connect(admin_signer).deposit(
-            prefix0X(elem.pubkey),
-            prefix0X(elem.withdrawal_credentials),
-            prefix0X(elem.signature),
-            prefix0X(elem.deposit_data_root),
-            {from: admin.address, value: TX_VALUE}
-        );
+        const res = await contract
+            .connect(admin_signer)
+            .deposit(
+                prefix0X(elem.pubkey),
+                prefix0X(elem.withdrawal_credentials),
+                prefix0X(elem.signature),
+                prefix0X(elem.deposit_data_root),
+                { from: admin.address, value: TX_VALUE }
+            );
 
-        const receipt = await res.wait();
-        console.log(
-            `    gasUsed: ${receipt.gasUsed}; blockNumber: ${receipt.blockNumber}; confirmations: ${receipt.confirmations} `
-        );
+        await delay(1000);
     }
 }
 
