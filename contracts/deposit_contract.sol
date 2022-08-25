@@ -34,8 +34,7 @@ interface IDepositContract {
         bytes calldata pubkey,
         bytes calldata withdrawal_credentials,
         bytes calldata signature,
-        bytes32 deposit_data_root,
-        address voter
+        bytes32 deposit_data_root
     ) external payable;
 
     /// @notice Query the current deposit root hash.
@@ -72,8 +71,6 @@ contract DepositContract is IDepositContract, ERC165 {
 
     bytes32[DEPOSIT_CONTRACT_TREE_DEPTH] zero_hashes;
 
-    mapping(bytes => address) public voterOf;
-
     constructor() public {
         // Compute hashes in empty sparse Merkle tree
         for (uint height = 0; height < DEPOSIT_CONTRACT_TREE_DEPTH - 1; height++)
@@ -105,8 +102,7 @@ contract DepositContract is IDepositContract, ERC165 {
         bytes calldata pubkey,
         bytes calldata withdrawal_credentials,
         bytes calldata signature,
-        bytes32 deposit_data_root,
-        address voter
+        bytes32 deposit_data_root
     ) override external payable {
         // Extended ABI length checks since dynamic types are used.
         require(pubkey.length == 48, "DepositContract: invalid pubkey length");
@@ -119,7 +115,6 @@ contract DepositContract is IDepositContract, ERC165 {
         uint deposit_amount = msg.value / 1 gwei;
         require(deposit_amount <= type(uint64).max, "DepositContract: deposit value too high");
 
-        voterOf[pubkey] = voter;
         // Emit `DepositEvent` log
         bytes memory amount = to_little_endian_64(uint64(deposit_amount));
         emit DepositEvent(

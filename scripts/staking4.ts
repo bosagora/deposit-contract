@@ -48,7 +48,6 @@ async function main() {
                 prefix0X(elem.withdrawal_credentials),
                 prefix0X(elem.signature),
                 prefix0X(elem.deposit_data_root),
-                prefix0X(elem.voter),
                 { from: admin.address, value: TX_VALUE }
             );
         await delay(1000);
