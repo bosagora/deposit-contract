@@ -57,6 +57,17 @@ interface ERC165 {
     function supportsInterface(bytes4 interfaceId) external pure returns (bool);
 }
 
+interface IAgoraDepositContract is IDepositContract {
+    function deposit_with_voter(
+        bytes calldata pubkey,
+        bytes calldata withdrawal_credentials,
+        bytes calldata signature,
+        bytes32 deposit_data_root,
+        address voter
+    ) external payable;
+
+}
+
 // This is a rewrite of the Vyper Eth2.0 deposit contract in Solidity.
 // It tries to stay as close as possible to the original source code.
 /// @notice This is the Ethereum 2.0 deposit contract interface.
@@ -104,6 +115,38 @@ contract DepositContract is IDepositContract, ERC165 {
         bytes calldata signature,
         bytes32 deposit_data_root
     ) override external payable {
+        revert("This feature is not supported on the Agora network. Please use the 'deposit_with_voter'.");
+    }
+
+    function supportsInterface(bytes4 interfaceId) virtual override external pure returns (bool) {
+        return interfaceId == type(ERC165).interfaceId || interfaceId == type(IDepositContract).interfaceId;
+    }
+
+    function to_little_endian_64(uint64 value) internal pure returns (bytes memory ret) {
+        ret = new bytes(8);
+        bytes8 bytesValue = bytes8(value);
+        // Byteswapping during copying to bytes.
+        ret[0] = bytesValue[7];
+        ret[1] = bytesValue[6];
+        ret[2] = bytesValue[5];
+        ret[3] = bytesValue[4];
+        ret[4] = bytesValue[3];
+        ret[5] = bytesValue[2];
+        ret[6] = bytesValue[1];
+        ret[7] = bytesValue[0];
+    }
+}
+
+contract AgoraDepositContract is DepositContract, IAgoraDepositContract {
+    mapping(bytes => address) public voterOf;
+
+    function deposit_with_voter(
+        bytes calldata pubkey,
+        bytes calldata withdrawal_credentials,
+        bytes calldata signature,
+        bytes32 deposit_data_root,
+        address voter
+    ) override external payable {
         // Extended ABI length checks since dynamic types are used.
         require(pubkey.length == 48, "DepositContract: invalid pubkey length");
         require(withdrawal_credentials.length == 32, "DepositContract: invalid withdrawal_credentials length");
@@ -115,6 +158,7 @@ contract DepositContract is IDepositContract, ERC165 {
         uint deposit_amount = msg.value / 1 gwei;
         require(deposit_amount <= type(uint64).max, "DepositContract: deposit value too high");
 
+        voterOf[pubkey] = voter;
         // Emit `DepositEvent` log
         bytes memory amount = to_little_endian_64(uint64(deposit_amount));
         emit DepositEvent(
@@ -128,13 +172,13 @@ contract DepositContract is IDepositContract, ERC165 {
         // Compute deposit data root (`DepositData` hash tree root)
         bytes32 pubkey_root = sha256(abi.encodePacked(pubkey, bytes16(0)));
         bytes32 signature_root = sha256(abi.encodePacked(
-            sha256(abi.encodePacked(signature[:64])),
-            sha256(abi.encodePacked(signature[64:], bytes32(0)))
-        ));
+                sha256(abi.encodePacked(signature[:64])),
+                sha256(abi.encodePacked(signature[64:], bytes32(0)))
+            ));
         bytes32 node = sha256(abi.encodePacked(
-            sha256(abi.encodePacked(pubkey_root, withdrawal_credentials)),
-            sha256(abi.encodePacked(amount, bytes24(0), signature_root))
-        ));
+                sha256(abi.encodePacked(pubkey_root, withdrawal_credentials)),
+                sha256(abi.encodePacked(amount, bytes24(0), signature_root))
+            ));
 
         // Verify computed and expected deposit data roots match
         require(node == deposit_data_root, "DepositContract: reconstructed DepositData does not match supplied deposit_data_root");
@@ -158,21 +202,10 @@ contract DepositContract is IDepositContract, ERC165 {
         assert(false);
     }
 
-    function supportsInterface(bytes4 interfaceId) override external pure returns (bool) {
-        return interfaceId == type(ERC165).interfaceId || interfaceId == type(IDepositContract).interfaceId;
-    }
-
-    function to_little_endian_64(uint64 value) internal pure returns (bytes memory ret) {
-        ret = new bytes(8);
-        bytes8 bytesValue = bytes8(value);
-        // Byteswapping during copying to bytes.
-        ret[0] = bytesValue[7];
-        ret[1] = bytesValue[6];
-        ret[2] = bytesValue[5];
-        ret[3] = bytesValue[4];
-        ret[4] = bytesValue[3];
-        ret[5] = bytesValue[2];
-        ret[6] = bytesValue[1];
-        ret[7] = bytesValue[0];
+    function supportsInterface(bytes4 interfaceId) external pure override returns (bool) {
+        return
+        interfaceId == type(ERC165).interfaceId ||
+        interfaceId == type(IDepositContract).interfaceId ||
+        interfaceId == type(IAgoraDepositContract).interfaceId;
     }
 }
