@@ -94,11 +94,21 @@ const config: HardhatUserConfig = {
         },
         devnet: {
             url: process.env.DEV_NET_URL || "",
-            chainId: 2020,
+            chainId: 2155,
+            accounts: getAccounts(),
+        },
+        michael: {
+            url: process.env.MICHAEL_URL || "",
+            chainId: 34559,
             accounts: getAccounts(),
         },
         votera: {
             url: process.env.VOTERA_URL || "",
+            chainId: 34560,
+            accounts: getAccounts(),
+        },
+        localnet: {
+            url: process.env.LOCALNET_URL || "",
             chainId: 34560,
             accounts: getAccounts(),
         },
