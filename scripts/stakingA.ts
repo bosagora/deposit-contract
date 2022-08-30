@@ -4,7 +4,7 @@
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
 
-import { DepositContract } from "../typechain";
+import { AgoraDepositContract } from "../typechain-types";
 import { BOACoin } from "../utils/Amount";
 import { GasPriceManager } from "../utils/GasPriceManager";
 
@@ -29,8 +29,8 @@ function delay(interval: number): Promise<void> {
 }
 
 async function main() {
-    const ContractFactory = await ethers.getContractFactory("DepositContract");
-    const contract = ContractFactory.attach(process.env.DEPOSIT_CONTRACT_ADDRESS || "") as DepositContract;
+    const ContractFactory = await ethers.getContractFactory("AgoraDepositContract");
+    const contract = ContractFactory.attach(process.env.DEPOSIT_CONTRACT_ADDRESS || "") as AgoraDepositContract;
     const provider = ethers.provider;
 
     const admin = new Wallet(process.env.ADMIN_KEY || "");
@@ -40,16 +40,14 @@ async function main() {
 
     for (const elem of deposit_data) {
         console.log(`public key: ${elem.pubkey}`);
-
-        const res = await contract
+        const voter_info = { voter: prefix0X(elem.voter.substring(24)), signature: prefix0X(elem.voter_signature), data_root: prefix0X(elem.voter_data_root) };
+        await contract
             .connect(admin_signer)
-            .deposit(
-                prefix0X(elem.pubkey),
-                prefix0X(elem.withdrawal_credentials),
-                prefix0X(elem.signature),
-                prefix0X(elem.deposit_data_root),
-                { from: admin.address, value: TX_VALUE }
-            );
+            .deposit_with_voter(prefix0X(elem.pubkey), prefix0X(elem.withdrawal_credentials), prefix0X(elem.signature), prefix0X(elem.deposit_data_root),
+                voter_info,{
+                    from: admin.address,
+                    value: TX_VALUE,
+                });
 
         await delay(1000);
     }
