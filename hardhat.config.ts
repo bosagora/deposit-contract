@@ -97,6 +97,11 @@ const config: HardhatUserConfig = {
             chainId: 2155,
             accounts: getAccounts(),
         },
+        bellatrix: {
+            url: process.env.BELLATRIX_URL || "",
+            chainId: 215545,
+            accounts: getAccounts(),
+        },
         michael: {
             url: process.env.MICHAEL_URL || "",
             chainId: 34559,
